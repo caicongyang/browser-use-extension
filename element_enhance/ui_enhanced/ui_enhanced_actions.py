@@ -299,8 +299,8 @@ def action_response_to_result(response: ActionResponse) -> ActionResult:
     )
 
 # UIEnhancedActions 包含注册所有增强操作的方法
-class UIEnhancedActions:
-    """UI增强操作类"""
+class EnhancedUIActionImplementations:
+    """UI增强操作实现类"""
     
     @staticmethod
     def register_actions(controller) -> None:

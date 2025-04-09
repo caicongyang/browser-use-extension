@@ -19,10 +19,10 @@ from browser_use.browser.browser import BrowserConfig
 
 # 从当前目录的browser_extension模块导入
 from browser_extension.context_extension import extend_browser_context
-from examples.element_enhance.ui_enhanced.ui_enhanced_actions import UIEnhancedActions
+from element_enhance.ui_enhanced.ui_enhanced_actions import EnhancedUIActionImplementations
 
 # 导入增强UI操作注册函数
-from ui_enhanced.ui_enhanced_actions import register_enhanced_ui_actions, execute_ui_action, get_available_actions
+from element_enhance.ui_registry import register_enhanced_ui_actions, execute_ui_action, get_available_actions
 
 # 加载环境变量
 load_dotenv()
@@ -234,8 +234,8 @@ class EnhancedController(Controller):
         if self._enhanced_actions_registered:
             return
 
-        # 使用UIEnhancedActions的注册方法
-        await UIEnhancedActions.register_actions(self)
+        # 使用EnhancedUIActionImplementations的注册方法
+        await EnhancedUIActionImplementations.register_actions(self)
         self._enhanced_actions_registered = True
 
 

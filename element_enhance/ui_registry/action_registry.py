@@ -1,5 +1,5 @@
 """
-Enhanced UI Actions Registration System
+UI Actions Registry System
 
 This module provides a decorator-based system for registering enhanced UI actions
 that can be used by LLM agents to interact with web interfaces more effectively.
