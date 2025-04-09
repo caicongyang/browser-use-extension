@@ -1,3 +1,16 @@
+"""
+UI增强操作模块
+
+这个模块提供了一系列增强的UI操作实现，用于处理Web界面的各种交互场景。
+主要功能包括：
+1. 智能文本输入
+2. 增强型元素查找
+3. 智能点击操作
+4. 页面操作控制
+5. 元素诊断
+
+每个操作都经过优化，能够处理各种边缘情况和异常情况。
+"""
 import logging
 import time
 import asyncio
@@ -8,9 +21,18 @@ from pydantic import BaseModel, Field
 
 logger = logging.getLogger(__name__)
 
-# 操作参数模型
+# 操作参数模型定义
 class InputTextParams(BaseModel):
-    """文本输入操作参数"""
+    """
+    文本输入操作参数模型
+    
+    属性:
+        index: 目标元素的索引，可选
+        text: 要输入的文本内容
+        selector: CSS选择器，用于定位元素，可选
+        wait_time: 输入后的等待时间（毫秒）
+        clear_first: 是否在输入前清除现有内容
+    """
     index: Optional[int] = Field(None, description="元素索引")
     text: str = Field("", description="要输入的文本")
     selector: Optional[str] = Field(None, description="CSS选择器（可选）")
@@ -18,7 +40,20 @@ class InputTextParams(BaseModel):
     clear_first: bool = Field(False, description="是否先清除现有内容")
 
 class FindElementParams(BaseModel):
-    """元素查找操作参数"""
+    """
+    元素查找操作参数模型
+    
+    属性:
+        text: 要查找的文本内容
+        tag: HTML标签名
+        exact: 是否进行精确匹配
+        selector: CSS选择器
+        role: ARIA角色
+        name: 元素名称或标签
+        timeout: 查找超时时间（秒）
+        visible_only: 是否只查找可见元素
+        interactive_only: 是否只查找可交互元素
+    """
     text: Optional[str] = Field(None, description="要查找的文本")
     tag: Optional[str] = Field(None, description="HTML标签")
     exact: bool = Field(False, description="是否精确匹配")
@@ -30,7 +65,17 @@ class FindElementParams(BaseModel):
     interactive_only: bool = Field(False, description="是否只查找可交互元素")
 
 class PageActionParams(BaseModel):
-    """页面操作参数"""
+    """
+    页面操作参数模型
+    
+    属性:
+        wait_time: 等待时间（秒）
+        action_type: 操作类型（wait/refresh/scroll）
+        scroll_direction: 滚动方向（up/down/top/bottom）
+        scroll_amount: 滚动距离（像素）
+        wait_for_selector: 等待特定选择器出现
+        wait_for_navigation: 是否等待页面导航完成
+    """
     wait_time: int = Field(5, description="等待时间(秒)")
     action_type: str = Field("wait", description="操作类型(wait/refresh/scroll)")
     scroll_direction: Optional[str] = Field(None, description="滚动方向(up/down/top/bottom)")
@@ -39,7 +84,20 @@ class PageActionParams(BaseModel):
     wait_for_navigation: bool = Field(False, description="是否等待导航完成")
 
 class ResilientClickParams(BaseModel):
-    """增强型点击操作参数"""
+    """
+    增强型点击操作参数模型
+    
+    属性:
+        index: 目标元素索引
+        selector: CSS选择器
+        text: 要点击的文本内容
+        role: ARIA角色
+        name: 元素名称
+        max_attempts: 最大尝试次数
+        force: 是否强制点击
+        verify_navigation: 是否验证点击后的导航
+        wait_for_selector: 点击后等待的选择器
+    """
     index: Optional[int] = Field(None, description="元素索引")
     selector: Optional[str] = Field(None, description="CSS选择器（可选）")
     text: Optional[str] = Field(None, description="要点击的文本内容（可选）")
@@ -51,14 +109,29 @@ class ResilientClickParams(BaseModel):
     wait_for_selector: Optional[str] = Field(None, description="点击后等待此选择器出现")
 
 class ElementDiagnosticParams(BaseModel):
-    """元素诊断操作参数"""
+    """
+    元素诊断操作参数模型
+    
+    属性:
+        index: 目标元素索引
+        selector: CSS选择器
+        text: 元素文本内容
+    """
     index: Optional[int] = Field(None, description="元素索引")
     selector: Optional[str] = Field(None, description="CSS选择器（可选）")
     text: Optional[str] = Field(None, description="元素文本（可选）")
 
 @dataclass
 class ActionResponse:
-    """操作响应类"""
+    """
+    操作响应数据类
+    
+    属性:
+        success: 操作是否成功
+        message: 操作结果消息
+        page_state_changed: 页面状态是否改变
+        data: 附加数据
+    """
     success: bool
     message: str
     page_state_changed: bool = False
@@ -67,15 +140,26 @@ class ActionResponse:
     @classmethod
     def from_result(cls, success: bool, message: str, data: Any = None, 
                    page_state_changed: bool = False) -> 'ActionResponse':
-        """创建ActionResponse实例"""
+        """创建ActionResponse实例的工厂方法"""
         return cls(success=success, message=str(message), 
                   data=data, page_state_changed=page_state_changed)
 
 class ElementHelper:
-    """元素操作辅助类"""
+    """
+    元素操作辅助类
+    提供了一系列用于处理Web元素的实用方法
+    """
+    
     @staticmethod
     async def is_hidden(element) -> bool:
-        """检查元素是否隐藏"""
+        """
+        检查元素是否隐藏
+        
+        检查方式：
+        1. 元素的hidden属性
+        2. CSS样式（display: none, visibility: hidden）
+        3. 元素的可见性标志
+        """
         if hasattr(element, 'is_hidden') and element.is_hidden:
             return True
         if hasattr(element, 'attributes'):
@@ -88,7 +172,13 @@ class ElementHelper:
 
     @staticmethod
     async def get_element(context, index: int):
-        """获取元素"""
+        """
+        通过索引获取元素
+        
+        参数:
+            context: 浏览器上下文
+            index: 元素索引
+        """
         try:
             dom_state = await context.get_state()
             return dom_state.selector_map.get(index)
