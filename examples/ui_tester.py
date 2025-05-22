@@ -9,13 +9,14 @@ from typing import Dict, Any, List, Tuple, Optional, Union
 current_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, current_dir)
 # 添加项目根目录到Python路径
+parent_dir = os.path.dirname(current_dir)  # browser-use-extension目录
+sys.path.insert(0, parent_dir)
 sys.path.insert(0, os.path.abspath(os.path.join(current_dir, '../..')))
 
 from browser_use import Browser, Controller
 from browser_use.agent.views import ActionResult
-from browser_use.controller.views import ClickElementAction
-# 从当前目录的browser_extension模块导入
-from browser_extension.context_extension import extend_browser_context
+# 从element_enhance包中导入
+from element_enhance.browser_extension.context_extension import extend_browser_context
 
 # 配置日志
 logging.basicConfig(
@@ -800,7 +801,7 @@ if __name__ == "__main__":
     os.makedirs("ui_test_cache", exist_ok=True)
     
     # 运行UI测试
-    # asyncio.run(run_ui_test())
+    asyncio.run(run_ui_test())
     
     # 批量运行测试以获取更稳定的性能数据
-    asyncio.run(batch_run_tests(1))  # 默认运行1次，可以增加次数以获取更稳定的数据 
+    # asyncio.run(batch_run_tests(1))  # 默认运行1次，可以增加次数以获取更稳定的数据

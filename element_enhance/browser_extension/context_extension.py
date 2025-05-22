@@ -54,6 +54,9 @@ class ExtendedBrowserContext(BrowserContext):
         
         # 保存原始的元素获取方法，用于回退
         self._original_get_dom_element_by_index = self.get_dom_element_by_index
+        
+        # 添加对自身的引用，使UI增强操作能够访问context属性
+        self.context = self
     
     async def get_dom_element_by_index_with_cache(self, index: int) -> Optional[DOMElementNode]:
         """

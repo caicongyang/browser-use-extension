@@ -1,19 +1,15 @@
 """
-UI Registry Module
+增强型UI注册系统
 
-This module provides tools for registering and executing enhanced UI actions.
+这个包提供了用于注册增强型UI操作的功能。
 """
 
 from .action_registry import (
-    enhanced_ui_action, 
-    register_enhanced_ui_actions, 
-    execute_ui_action, 
-    get_available_actions
+    EnhancedUIRegistry,
+    create_enhanced_ui_registry
 )
 
 __all__ = [
-    'enhanced_ui_action',
-    'register_enhanced_ui_actions',
-    'execute_ui_action',
-    'get_available_actions'
+    'EnhancedUIRegistry',
+    'create_enhanced_ui_registry'
 ] 

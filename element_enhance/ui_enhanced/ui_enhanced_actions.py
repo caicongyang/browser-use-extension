@@ -14,10 +14,14 @@ UI增强操作模块
 import logging
 import time
 import asyncio
-from typing import Dict, Any, List, Optional, Tuple, Union
+from typing import Dict, Any, List, Optional, Tuple, Union, TypeVar
 from dataclasses import dataclass
+
 from browser_use.agent.views import ActionResult
 from pydantic import BaseModel, Field
+from browser_use.controller.service import Controller
+from browser_use.controller.registry.service import Registry
+from element_enhance.ui_registry.action_registry import EnhancedUIRegistry
 
 logger = logging.getLogger(__name__)
 
@@ -270,42 +274,45 @@ class ElementHelper:
         page = await context.get_current_page()
         start_time = time.time()
         
+        # 转义选择器中的特殊字符以避免JavaScript语法错误
+        escaped_selector = selector.replace("'", "\\'").replace('"', '\\"').replace('\\', '\\\\')
+        
         while time.time() - start_time < timeout:
             try:
                 # 检查选择器是否匹配元素
-                element_exists = await page.evaluate(f"""
-                    () => {{
-                        const el = document.querySelector('{selector}');
+                element_exists = await page.evaluate("""
+                    (selector) => {
+                        const el = document.querySelector(selector);
                         return el !== null;
-                    }}
-                """)
+                    }
+                """, selector)
                 
                 if element_exists:
                     # 获取元素XPath
-                    xpath = await page.evaluate(f"""
-                        () => {{
-                            const getElementXPath = function(element) {{
+                    xpath = await page.evaluate("""
+                        (selector) => {
+                            const getElementXPath = function(element) {
                                 if (element.id)
-                                    return `//*[@id="${{element.id}}"]`;
+                                    return `//*[@id="${element.id}"]`;
                                     
                                 if (element === document.body)
                                     return '/html/body';
 
                                 let ix = 0;
                                 const siblings = element.parentNode.childNodes;
-                                for (let i = 0; i < siblings.length; i++) {{
+                                for (let i = 0; i < siblings.length; i++) {
                                     const sibling = siblings[i];
                                     if (sibling === element)
-                                        return `${{getElementXPath(element.parentNode)}}/${{element.tagName.toLowerCase()}}[${{ix+1}}]`;
+                                        return `${getElementXPath(element.parentNode)}/${element.tagName.toLowerCase()}[${ix+1}]`;
                                     if (sibling.nodeType === 1 && sibling.tagName.toLowerCase() === element.tagName.toLowerCase())
                                         ix++;
-                                }}
-                            }};
+                                }
+                            };
                             
-                            const el = document.querySelector('{selector}');
+                            const el = document.querySelector(selector);
                             return el ? getElementXPath(el) : null;
-                        }}
-                    """)
+                        }
+                    """, selector)
                     
                     if xpath:
                         # 遍历DOM状态中的元素，查找匹配XPath的元素
@@ -528,19 +535,18 @@ async def _try_js_input(page, element, text: str, context, params) -> bool:
     """使用JavaScript输入"""
     try:
         # 使用JavaScript设置值并触发事件
-        text_escaped = text.replace("'", "\\'")
-        await page.evaluate(f"""
-            selector => {{
+        await page.evaluate("""
+            (selector, text) => {
                 const el = document.querySelector(selector);
-                if (el) {{
-                    el.value = '{text_escaped}';
-                    el.dispatchEvent(new Event('input', {{bubbles:true}}));
-                    el.dispatchEvent(new Event('change', {{bubbles:true}}));
+                if (el) {
+                    el.value = text;
+                    el.dispatchEvent(new Event('input', {bubbles:true}));
+                    el.dispatchEvent(new Event('change', {bubbles:true}));
                     return true;
-                }}
+                }
                 return false;
-            }}
-        """, element.selector)
+            }
+        """, element.selector, text)
         return True
     except Exception as e:
         logger.debug(f"JavaScript输入失败: {e}")
@@ -608,11 +614,16 @@ async def _try_focused_input(page, element, text: str, context, params) -> bool:
 async def _ensure_visible(page, element) -> None:
     """确保元素在视图中"""
     try:
+        # 检查元素是否有selector属性
+        if not hasattr(element, 'selector'):
+            logger.warning("元素没有selector属性，无法确保可见性")
+            return
+            
         # 检查元素是否在视图中，如果不在则滚动到元素
-        await page.evaluate(f"""
-            selector => {{
+        await page.evaluate("""
+            (selector) => {
                 const el = document.querySelector(selector);
-                if (el) {{
+                if (el) {
                     // 获取元素的位置信息
                     const rect = el.getBoundingClientRect();
                     
@@ -624,14 +635,14 @@ async def _ensure_visible(page, element) -> None:
                         rect.right <= (window.innerWidth || document.documentElement.clientWidth);
                     
                     // 如果不在视图中，滚动到元素
-                    if (!isInViewport) {{
-                        el.scrollIntoView({{ behavior: 'smooth', block: 'center' }});
+                    if (!isInViewport) {
+                        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
                         return false;
-                    }}
+                    }
                     return true;
-                }}
+                }
                 return false;
-            }}
+            }
         """, element.selector)
         
         # 给滚动一点时间完成
@@ -707,22 +718,21 @@ async def _advanced_find(context, params: Dict[str, Any]) -> Optional[int]:
     try:
         # 使用深度搜索JavaScript来查找匹配元素
         if text:
-            text_escaped = text.replace("'", "\\'")
-            js_result = await page.evaluate(f"""
-                () => {{
+            js_result = await page.evaluate("""
+                (searchText, searchTag) => {
                     // 深度优先搜索函数
-                    function deepSearch(root, predicate) {{
+                    function deepSearch(root, predicate) {
                         const matches = [];
-                        function traverse(node) {{
+                        function traverse(node) {
                             if (predicate(node)) matches.push(node);
                             for (const child of node.children) traverse(child);
-                        }}
+                        }
                         traverse(root);
                         return matches;
-                    }}
+                    }
                     
                     // 检查元素是否可见
-                    function isVisible(el) {{
+                    function isVisible(el) {
                         if (!el) return false;
                         
                         const style = window.getComputedStyle(el);
@@ -734,14 +744,10 @@ async def _advanced_find(context, params: Dict[str, Any]) -> Optional[int]:
                             return false;
                             
                         return true;
-                    }}
-                    
-                    // 构建搜索条件
-                    const searchText = '{text_escaped}';
-                    const searchTag = '{tag.lower() if tag else ""}';
+                    }
                     
                     // 搜索谓词
-                    const predicate = node => {{
+                    const predicate = node => {
                         // 检查文本内容
                         const nodeText = node.innerText || node.textContent || '';
                         const hasText = searchText ? nodeText.toLowerCase().includes(searchText.toLowerCase()) : true;
@@ -753,38 +759,38 @@ async def _advanced_find(context, params: Dict[str, Any]) -> Optional[int]:
                         const isNodeVisible = isVisible(node);
                         
                         return hasText && hasTag && isNodeVisible;
-                    }};
+                    };
                     
                     // 执行搜索
                     const matches = deepSearch(document.body, predicate);
                     
                     // 如果找到匹配元素，返回XPath
-                    if (matches.length > 0) {{
+                    if (matches.length > 0) {
                         // 获取元素XPath
-                        const getElementXPath = function(element) {{
+                        const getElementXPath = function(element) {
                             if (element.id !== '')
-                                return `//*[@id="${{element.id}}"]`;
+                                return `//*[@id="${element.id}"]`;
                                 
                             if (element === document.body)
                                 return '/html/body';
 
                             let ix = 0;
                             const siblings = element.parentNode.childNodes;
-                            for (let i = 0; i < siblings.length; i++) {{
+                            for (let i = 0; i < siblings.length; i++) {
                                 const sibling = siblings[i];
                                 if (sibling === element)
-                                    return `${{getElementXPath(element.parentNode)}}/${{element.tagName.toLowerCase()}}[${{ix+1}}]`;
+                                    return `${getElementXPath(element.parentNode)}/${element.tagName.toLowerCase()}[${ix+1}]`;
                                 if (sibling.nodeType === 1 && sibling.tagName.toLowerCase() === element.tagName.toLowerCase())
                                     ix++;
-                            }}
-                        }};
+                            }
+                        };
                         
                         return getElementXPath(matches[0]);
-                    }}
+                    }
                     
                     return null;
-                }}
-            """)
+                }
+            """, text, tag.lower() if tag else "")
             
             if js_result:
                 # 通过XPath找到对应的元素索引
@@ -941,6 +947,7 @@ async def resilient_click_action(params: ResilientClickParams, browser) -> Actio
 async def _try_click_methods(page, element, force: bool, context) -> bool:
     """尝试多种点击方法"""
     methods = [
+        _try_index_click,  # 首先尝试使用索引点击
         _try_standard_click,
         _try_js_click,
         _try_mouse_click
@@ -963,42 +970,77 @@ async def _try_click_methods(page, element, force: bool, context) -> bool:
         
     return False
     
+async def _try_index_click(page, element, context) -> bool:
+    """使用元素索引进行点击"""
+    try:
+        # 如果元素有highlight_index属性
+        if hasattr(element, 'highlight_index'):
+            index = element.highlight_index
+            logger.info(f"尝试使用索引 {index} 点击元素")
+            await page.evaluate("""
+                (index) => {
+                    // 查找标记为特定索引的元素
+                    const elements = document.querySelectorAll('[data-highlight-index="' + index + '"]');
+                    if (elements.length > 0) {
+                        elements[0].click();
+                        return true;
+                    }
+                    return false;
+                }
+            """, index)
+            return True
+    except Exception as e:
+        logger.warning(f"索引点击失败: {e}")
+    return False
+
 async def _try_standard_click(page, element, context) -> bool:
     """标准点击方法"""
+    if not hasattr(element, 'selector'):
+        logger.warning("元素没有selector属性，无法使用标准点击方法")
+        return False
+        
     await page.click(element.selector, timeout=3000)
     return True
     
 async def _try_js_click(page, element, context) -> bool:
     """JavaScript点击方法"""
-    await page.evaluate(f"""
-        selector => {{
+    if not hasattr(element, 'selector'):
+        logger.warning("元素没有selector属性，无法使用JS点击方法")
+        return False
+        
+    await page.evaluate("""
+        (selector) => {
             const el = document.querySelector(selector);
-            if (el) {{
+            if (el) {
                 el.click();
                 return true;
-            }}
+            }
             return false;
-        }}
+        }
     """, element.selector)
     return True
     
 async def _try_mouse_click(page, element, context) -> bool:
     """鼠标点击方法"""
+    if not hasattr(element, 'selector'):
+        logger.warning("元素没有selector属性，无法使用鼠标点击方法")
+        return False
+        
     # 获取元素中心位置
-    bounds = await page.evaluate(f"""
-        selector => {{
+    bounds = await page.evaluate("""
+        (selector) => {
             const el = document.querySelector(selector);
-            if (el) {{
+            if (el) {
                 const rect = el.getBoundingClientRect();
-                return {{
+                return {
                     x: rect.left + rect.width / 2,
                     y: rect.top + rect.height / 2,
                     width: rect.width,
                     height: rect.height
-                }};
-            }}
+                };
+            }
             return null;
-        }}
+        }
     """, element.selector)
     
     if bounds:
@@ -1011,26 +1053,30 @@ async def _try_mouse_click(page, element, context) -> bool:
     
 async def _try_force_click(page, element, context) -> bool:
     """强制点击方法"""
+    if not hasattr(element, 'selector'):
+        logger.warning("元素没有selector属性，无法使用强制点击方法")
+        return False
+        
     # 使用JavaScript手动触发事件
-    await page.evaluate(f"""
-        selector => {{
+    await page.evaluate("""
+        (selector) => {
             const el = document.querySelector(selector);
-            if (el) {{
+            if (el) {
                 // 创建并分发鼠标事件
                 const events = ['mousedown', 'mouseup', 'click'];
-                for (const eventName of events) {{
-                    const event = new MouseEvent(eventName, {{
+                for (const eventName of events) {
+                    const event = new MouseEvent(eventName, {
                         view: window,
                         bubbles: true,
                         cancelable: true,
                         buttons: 1
-                    }});
+                    });
                     el.dispatchEvent(event);
-                }}
+                }
                 return true;
-            }}
+            }
             return false;
-        }}
+        }
     """, element.selector)
     return True
 
@@ -1055,8 +1101,8 @@ async def element_diagnostic_action(params: ElementDiagnosticParams, browser) ->
         
         # 收集元素详细信息
         selector = element.selector
-        element_info = await page.evaluate(f"""
-            selector => {{
+        element_info = await page.evaluate("""
+            (selector) => {
                 const el = document.querySelector(selector);
                 if (!el) return null;
                 
@@ -1068,17 +1114,17 @@ async def element_diagnostic_action(params: ElementDiagnosticParams, browser) ->
                 
                 // 事件处理程序
                 const events = [];
-                for (const key in el) {{
-                    if (key.startsWith('on') && typeof el[key] === 'function') {{
+                for (const key in el) {
+                    if (key.startsWith('on') && typeof el[key] === 'function') {
                         events.push(key.slice(2));
-                    }}
-                }}
+                    }
+                }
                 
                 // 收集属性
-                const attributes = {{}};
-                for (const attr of el.attributes) {{
+                const attributes = {};
+                for (const attr of el.attributes) {
                     attributes[attr.name] = attr.value;
-                }}
+                }
                 
                 // Z-index和定位
                 const zIndex = style.zIndex !== 'auto' ? parseInt(style.zIndex) : 0;
@@ -1094,15 +1140,15 @@ async def element_diagnostic_action(params: ElementDiagnosticParams, browser) ->
                     
                 // 检查元素是否被其他元素覆盖
                 let isObstructed = false;
-                if (isVisible) {{
+                if (isVisible) {
                     const x = rect.left + rect.width / 2;
                     const y = rect.top + rect.height / 2;
                     const elementsAtPoint = document.elementsFromPoint(x, y);
                     
-                    if (elementsAtPoint.length > 0 && elementsAtPoint[0] !== el) {{
+                    if (elementsAtPoint.length > 0 && elementsAtPoint[0] !== el) {
                         isObstructed = true;
-                    }}
-                }}
+                    }
+                }
                 
                 // 是否在视口内
                 const isInViewport = 
@@ -1111,7 +1157,7 @@ async def element_diagnostic_action(params: ElementDiagnosticParams, browser) ->
                     rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
                     rect.right <= (window.innerWidth || document.documentElement.clientWidth);
                 
-                return {{
+                return {
                     tagName: el.tagName.toLowerCase(),
                     id: el.id,
                     className: el.className,
@@ -1122,7 +1168,7 @@ async def element_diagnostic_action(params: ElementDiagnosticParams, browser) ->
                     isObstructed,
                     position,
                     zIndex,
-                    rect: {{
+                    rect: {
                         x: rect.x,
                         y: rect.y,
                         width: rect.width,
@@ -1131,17 +1177,17 @@ async def element_diagnostic_action(params: ElementDiagnosticParams, browser) ->
                         right: rect.right,
                         bottom: rect.bottom,
                         left: rect.left
-                    }},
-                    styles: {{
+                    },
+                    styles: {
                         display: style.display,
                         visibility: style.visibility,
                         opacity: style.opacity,
                         pointerEvents: style.pointerEvents
-                    }},
+                    },
                     attributes,
                     events
-                }};
-            }}
+                };
+            }
         """, selector)
         
         if not element_info:
@@ -1179,44 +1225,124 @@ async def element_diagnostic_action(params: ElementDiagnosticParams, browser) ->
         logger.error(f"元素诊断失败: {e}", exc_info=True)
         return ActionResult(success=False, error_message=f"诊断失败: {str(e)}")
 
-# 提供一个函数来设置装饰器式的操作注册
-def register_enhanced_ui_actions(controller):
-    """注册所有增强的UI操作到控制器，使用装饰器模式"""
-    logger.info("注册增强UI操作")
+# 增强UI操作集成类
+class EnhancedUIActionProvider:
+    """
+    UI增强操作提供者，负责注册所有增强UI操作到控制器
+    """
     
-    # 注册输入文本操作
-    controller.registry.action(
-        name="input_text",
-        description="输入文本到指定元素",
-        param_model=InputTextParams
-    )(input_text_action)
-    
-    # 注册查找元素操作
-    controller.registry.action(
-        name="find_element",
-        description="查找页面元素",
-        param_model=FindElementParams
-    )(find_element_action)
-    
-    # 注册页面操作
-    controller.registry.action(
-        name="page_action",
-        description="执行页面相关操作",
-        param_model=PageActionParams
-    )(page_action)
-    
-    # 注册增强点击操作
-    controller.registry.action(
-        name="resilient_click",
-        description="增强型元素点击操作",
-        param_model=ResilientClickParams
-    )(resilient_click_action)
-    
-    # 注册元素诊断操作
-    controller.registry.action(
-        name="element_diagnostic",
-        description="诊断元素状态和问题",
-        param_model=ElementDiagnosticParams
-    )(element_diagnostic_action)
-    
-    logger.info("UI增强操作注册完成")
+    @staticmethod
+    def register_to_controller(controller: Controller) -> None:
+        """
+        将所有增强UI操作注册到控制器
+        
+        参数:
+            controller: 浏览器控制器实例
+        """
+        logger.info("开始注册UI增强操作到控制器")
+        
+        # 检查控制器是否已经拥有增强UI操作
+        if hasattr(controller, '_enhanced_actions_registered') and controller._enhanced_actions_registered:
+            logger.info("控制器已注册增强UI操作，跳过")
+            return
+            
+        # 注册输入文本操作
+        @controller.action(
+            "增强的文本输入操作，支持多种输入策略，能处理各种输入场景和异常情况",
+            param_model=InputTextParams
+        )
+        async def enhanced_input_text(params: InputTextParams, browser):
+            return await input_text_action(params, browser)
+            
+        # 注册元素查找操作
+        @controller.action(
+            "增强的元素查找操作，使用多种定位策略查找元素",
+            param_model=FindElementParams
+        )
+        async def enhanced_find_element(params: FindElementParams, browser):
+            return await find_element_action(params, browser)
+            
+        # 注册页面操作
+        @controller.action(
+            "增强的页面操作，包括滚动、等待、刷新等",
+            param_model=PageActionParams
+        )
+        async def enhanced_page_action(params: PageActionParams, browser):
+            return await page_action(params, browser)
+            
+        # 注册增强点击操作
+        @controller.action(
+            "增强的点击操作，使用多种策略尝试点击元素",
+            param_model=ResilientClickParams
+        )
+        async def enhanced_resilient_click(params: ResilientClickParams, browser):
+            return await resilient_click_action(params, browser)
+            
+        # 注册元素诊断操作
+        @controller.action(
+            "元素诊断操作，提供元素的详细信息和交互建议",
+            param_model=ElementDiagnosticParams
+        )
+        async def enhanced_element_diagnostic(params: ElementDiagnosticParams, browser):
+            return await element_diagnostic_action(params, browser)
+            
+        # 标记控制器已注册增强UI操作
+        controller._enhanced_actions_registered = True
+        logger.info("UI增强操作注册完成")
+        
+    @staticmethod
+    def register_to_registry(registry: EnhancedUIRegistry) -> None:
+        """
+        将所有增强UI操作注册到增强UI注册表
+        
+        参数:
+            registry: 增强UI注册表实例
+        """
+        logger.info("开始注册UI增强操作到增强UI注册表")
+        
+        # 注册输入文本操作
+        @registry.register_enhanced_ui_action(
+            name="enhanced_input_text",
+            description="增强的文本输入操作，支持多种输入策略，能处理各种输入场景和异常情况",
+            param_model=InputTextParams
+        )
+        async def enhanced_input_text(params: InputTextParams, browser=None):
+            return await input_text_action(params, browser)
+            
+        # 注册元素查找操作
+        @registry.register_enhanced_ui_action(
+            name="enhanced_find_element",
+            description="增强的元素查找操作，使用多种定位策略查找元素",
+            param_model=FindElementParams
+        )
+        async def enhanced_find_element(params: FindElementParams, browser=None):
+            return await find_element_action(params, browser)
+            
+        # 注册页面操作
+        @registry.register_enhanced_ui_action(
+            name="enhanced_page_action",
+            description="增强的页面操作，包括滚动、等待、刷新等",
+            param_model=PageActionParams
+        )
+        async def enhanced_page_action(params: PageActionParams, browser=None):
+            return await page_action(params, browser)
+            
+        # 注册增强点击操作
+        @registry.register_enhanced_ui_action(
+            name="enhanced_resilient_click", 
+            description="增强的点击操作，使用多种策略尝试点击元素",
+            param_model=ResilientClickParams
+        )
+        async def enhanced_resilient_click(params: ResilientClickParams, browser=None):
+            return await resilient_click_action(params, browser)
+            
+        # 注册元素诊断操作
+        @registry.register_enhanced_ui_action(
+            name="enhanced_element_diagnostic",
+            description="元素诊断操作，提供元素的详细信息和交互建议",
+            param_model=ElementDiagnosticParams
+        )
+        async def enhanced_element_diagnostic(params: ElementDiagnosticParams, browser=None):
+            return await element_diagnostic_action(params, browser)
+            
+        logger.info("UI增强操作注册到增强UI注册表完成")

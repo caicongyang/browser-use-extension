@@ -1,4 +1,5 @@
 import os
+import sys
 import logging
 from typing import Dict, Any
 
@@ -9,15 +10,24 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+
+# 添加当前目录到Python路径
+current_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, current_dir)
+# 添加项目根目录到Python路径
+sys.path.insert(0, os.path.abspath(os.path.join(current_dir, '../..')))
+# 添加browser-use-extension目录到Python路径
+sys.path.insert(0, os.path.abspath(os.path.join(current_dir, '..')))
+
 # 导入Browser类和缓存管理相关类
 from browser_use.browser.browser import Browser
-from cache.element_cache import ElementCache
-from cache.cache_manager import CacheManager
+from element_enhance.cache.element_cache import ElementCache
+from element_enhance.cache.cache_manager import CacheManager
 
 class RealPageCacheDemo:
     """实际页面缓存演示类"""
 
-    def __init__(self, target_url: str = "https://hy-sit.1233s2b.com", cache_dir: str = "cache_data_0317_004"):
+    def __init__(self, target_url: str = "https://hy-sit.1233s2b.com", cache_dir: str = "ui_test_cache"):
         """
         初始化实际页面缓存演示
         :param target_url: 目标网页URL

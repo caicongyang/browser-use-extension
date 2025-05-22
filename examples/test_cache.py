@@ -4,17 +4,20 @@ import logging
 import sys
 from typing import Dict, Any
 
+import sys
+
 # 添加当前目录到Python路径
 current_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, current_dir)
 # 添加项目根目录到Python路径
 sys.path.insert(0, os.path.abspath(os.path.join(current_dir, '../..')))
+# 添加browser-use-extension目录到Python路径
+sys.path.insert(0, os.path.abspath(os.path.join(current_dir, '..')))
 
 from browser_use import Browser, Controller
 from browser_use.agent.views import ActionResult
 from browser_use.controller.views import ClickElementAction
-# 从当前目录的browser_extension模块导入
-from browser_extension.context_extension import extend_browser_context
+from element_enhance.browser_extension.context_extension import extend_browser_context
 
 # 配置日志
 logging.basicConfig(
@@ -35,7 +38,7 @@ async def run_demo():
     context = await browser.new_context()
     
     # 扩展浏览器上下文，添加缓存功能
-    context = extend_browser_context(context, cache_dir="demo_cache_001")
+    context = extend_browser_context(context, cache_dir="ui_test_cache")
     
     try:
         # 测试场景1: 初始缓存构建

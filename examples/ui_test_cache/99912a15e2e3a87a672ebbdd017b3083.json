@@ -1,0 +1,549 @@
+{
+  "metadata": {
+    "url": "https://hy-sit.1233s2b.com/welcome",
+    "timestamp": 1747898965.0916328,
+    "element_count": 39
+  },
+  "elements": {
+    "1": {
+      "locators": {
+        "xpath": "html/body/div/div/section/aside/div/div/ul/li",
+        "css": "li.ant-menu-item.ant-menu-item-selected.ant-menu-item-only-child"
+      },
+      "attributes": {
+        "class": "ant-menu-item ant-menu-item-selected ant-menu-item-only-child",
+        "title": "首页",
+        "role": "menuitem",
+        "tabindex": "-1",
+        "data-menu-id": "rc-menu-uuid-95900-3-/welcome",
+        "style": "padding-left: 16px;"
+      },
+      "tag_name": "li",
+      "text": "首页",
+      "is_visible": true,
+      "is_clickable": true
+    },
+    "2": {
+      "locators": {
+        "xpath": "html/body/div/div/section/aside/div/div/ul/li[2]/div",
+        "css": "div.ant-menu-submenu-title"
+      },
+      "attributes": {
+        "role": "menuitem",
+        "class": "ant-menu-submenu-title",
+        "tabindex": "-1",
+        "aria-expanded": "false",
+        "aria-haspopup": "true",
+        "data-menu-id": "rc-menu-uuid-95900-3-/merchant",
+        "aria-controls": "rc-menu-uuid-95900-3-/merchant-popup",
+        "style": "padding-left: 16px;"
+      },
+      "tag_name": "div",
+      "text": "商家管理",
+      "is_visible": true,
+      "is_clickable": true
+    },
+    "3": {
+      "locators": {
+        "xpath": "html/body/div/div/section/aside/div/div/ul/li[3]/div",
+        "css": "div.ant-menu-submenu-title"
+      },
+      "attributes": {
+        "role": "menuitem",
+        "class": "ant-menu-submenu-title",
+        "tabindex": "-1",
+        "aria-expanded": "false",
+        "aria-haspopup": "true",
+        "data-menu-id": "rc-menu-uuid-95900-3-/customerManager",
+        "aria-controls": "rc-menu-uuid-95900-3-/customerManager-popup",
+        "style": "padding-left: 16px;"
+      },
+      "tag_name": "div",
+      "text": "客户管理",
+      "is_visible": true,
+      "is_clickable": true
+    },
+    "4": {
+      "locators": {
+        "xpath": "html/body/div/div/section/aside/div/div/ul/li[4]/div",
+        "css": "div.ant-menu-submenu-title"
+      },
+      "attributes": {
+        "role": "menuitem",
+        "class": "ant-menu-submenu-title",
+        "tabindex": "-1",
+        "aria-expanded": "false",
+        "aria-haspopup": "true",
+        "data-menu-id": "rc-menu-uuid-95900-3-/contract",
+        "aria-controls": "rc-menu-uuid-95900-3-/contract-popup",
+        "style": "padding-left: 16px;"
+      },
+      "tag_name": "div",
+      "text": "合同管理",
+      "is_visible": true,
+      "is_clickable": true
+    },
+    "5": {
+      "locators": {
+        "xpath": "html/body/div/div/section/aside/div/div/ul/li[5]/div",
+        "css": "div.ant-menu-submenu-title"
+      },
+      "attributes": {
+        "role": "menuitem",
+        "class": "ant-menu-submenu-title",
+        "tabindex": "-1",
+        "aria-expanded": "false",
+        "aria-haspopup": "true",
+        "data-menu-id": "rc-menu-uuid-95900-3-/project",
+        "aria-controls": "rc-menu-uuid-95900-3-/project-popup",
+        "style": "padding-left: 16px;"
+      },
+      "tag_name": "div",
+      "text": "项目管理",
+      "is_visible": true,
+      "is_clickable": true
+    },
+    "6": {
+      "locators": {
+        "xpath": "html/body/div/div/section/aside/div/div/ul/li[6]/div",
+        "css": "div.ant-menu-submenu-title"
+      },
+      "attributes": {
+        "role": "menuitem",
+        "class": "ant-menu-submenu-title",
+        "tabindex": "-1",
+        "aria-expanded": "false",
+        "aria-haspopup": "true",
+        "data-menu-id": "rc-menu-uuid-95900-3-/peopleMangage",
+        "aria-controls": "rc-menu-uuid-95900-3-/peopleMangage-popup",
+        "style": "padding-left: 16px;"
+      },
+      "tag_name": "div",
+      "text": "人员管理",
+      "is_visible": true,
+      "is_clickable": true
+    },
+    "7": {
+      "locators": {
+        "xpath": "html/body/div/div/section/aside/div/div/ul/li[7]/div",
+        "css": "div.ant-menu-submenu-title"
+      },
+      "attributes": {
+        "role": "menuitem",
+        "class": "ant-menu-submenu-title",
+        "tabindex": "-1",
+        "aria-expanded": "false",
+        "aria-haspopup": "true",
+        "data-menu-id": "rc-menu-uuid-95900-3-/serviceCenter",
+        "aria-controls": "rc-menu-uuid-95900-3-/serviceCenter-popup",
+        "style": "padding-left: 16px;"
+      },
+      "tag_name": "div",
+      "text": "服务执行",
+      "is_visible": true,
+      "is_clickable": true
+    },
+    "8": {
+      "locators": {
+        "xpath": "html/body/div/div/section/aside/div/div/ul/li[8]/div",
+        "css": "div.ant-menu-submenu-title"
+      },
+      "attributes": {
+        "role": "menuitem",
+        "class": "ant-menu-submenu-title",
+        "tabindex": "-1",
+        "aria-expanded": "false",
+        "aria-haspopup": "true",
+        "data-menu-id": "rc-menu-uuid-95900-3-/finance",
+        "aria-controls": "rc-menu-uuid-95900-3-/finance-popup",
+        "style": "padding-left: 16px;"
+      },
+      "tag_name": "div",
+      "text": "对账管理",
+      "is_visible": true,
+      "is_clickable": true
+    },
+    "9": {
+      "locators": {
+        "xpath": "html/body/div/div/section/aside/div/div/ul/li[9]/div",
+        "css": "div.ant-menu-submenu-title"
+      },
+      "attributes": {
+        "role": "menuitem",
+        "class": "ant-menu-submenu-title",
+        "tabindex": "-1",
+        "aria-expanded": "false",
+        "aria-haspopup": "true",
+        "data-menu-id": "rc-menu-uuid-95900-3-/userCenter",
+        "aria-controls": "rc-menu-uuid-95900-3-/userCenter-popup",
+        "style": "padding-left: 16px;"
+      },
+      "tag_name": "div",
+      "text": "账号权限",
+      "is_visible": true,
+      "is_clickable": true
+    },
+    "10": {
+      "locators": {
+        "xpath": "html/body/div/div/section/aside/div/div/ul/li[10]/div",
+        "css": "div.ant-menu-submenu-title"
+      },
+      "attributes": {
+        "role": "menuitem",
+        "class": "ant-menu-submenu-title",
+        "tabindex": "-1",
+        "aria-expanded": "false",
+        "aria-haspopup": "true",
+        "data-menu-id": "rc-menu-uuid-95900-3-/system",
+        "aria-controls": "rc-menu-uuid-95900-3-/system-popup",
+        "style": "padding-left: 16px;"
+      },
+      "tag_name": "div",
+      "text": "系统配置",
+      "is_visible": true,
+      "is_clickable": true
+    },
+    "0": {
+      "locators": {
+        "xpath": "html/body/div/div/section/aside/div/div/ul",
+        "css": "ul.ant-menu.ant-menu-root.ant-menu-inline.ant-menu-light.ant-pro-sider-menu"
+      },
+      "attributes": {
+        "class": "ant-menu ant-menu-root ant-menu-inline ant-menu-light ant-pro-sider-menu",
+        "dir": "ltr",
+        "role": "menu",
+        "tabindex": "0",
+        "data-menu-list": "true",
+        "style": "width: 100%;"
+      },
+      "tag_name": "ul",
+      "text": "",
+      "is_visible": true,
+      "is_clickable": true
+    },
+    "11": {
+      "locators": {
+        "xpath": "html/body/div/div/section/aside/div/div[3]/div/span",
+        "css": "span.anticon.anticon-search"
+      },
+      "attributes": {
+        "role": "img",
+        "aria-label": "search",
+        "_nk": "SQ4621",
+        "tabindex": "-1",
+        "class": "anticon anticon-search"
+      },
+      "tag_name": "span",
+      "text": "",
+      "is_visible": true,
+      "is_clickable": true
+    },
+    "14": {
+      "locators": {
+        "xpath": "html/body/div/div/section/div[2]/header[2]/div/div/a/img"
+      },
+      "attributes": {},
+      "tag_name": "img",
+      "text": "",
+      "is_visible": true,
+      "is_clickable": true
+    },
+    "13": {
+      "locators": {
+        "xpath": "html/body/div/div/section/div[2]/header[2]/div/div/a"
+      },
+      "attributes": {},
+      "tag_name": "a",
+      "text": "航远营销平台",
+      "is_visible": true,
+      "is_clickable": true
+    },
+    "12": {
+      "locators": {
+        "xpath": "html/body/div/div/section/div[2]/header[2]/div/div"
+      },
+      "attributes": {},
+      "tag_name": "div",
+      "text": "",
+      "is_visible": true,
+      "is_clickable": true
+    },
+    "15": {
+      "locators": {
+        "xpath": "html/body/div/div/section/div[2]/header[2]/div/div[3]/div[2]/span"
+      },
+      "attributes": {},
+      "tag_name": "span",
+      "text": "1\n0\n3",
+      "is_visible": true,
+      "is_clickable": true
+    },
+    "16": {
+      "locators": {
+        "xpath": "html/body/div/div/section/div[2]/header[2]/div/div[3]/div[3]/span/span/img"
+      },
+      "attributes": {},
+      "tag_name": "img",
+      "text": "",
+      "is_visible": true,
+      "is_clickable": true
+    },
+    "18": {
+      "locators": {
+        "xpath": "html/body/div/div/section/div[2]/main/div/div/div/span/span[2]",
+        "css": "span.anticon.anticon-close.ant-tag-close-icon"
+      },
+      "attributes": {
+        "role": "img",
+        "aria-label": "close",
+        "tabindex": "-1",
+        "class": "anticon anticon-close ant-tag-close-icon"
+      },
+      "tag_name": "span",
+      "text": "",
+      "is_visible": true,
+      "is_clickable": true
+    },
+    "17": {
+      "locators": {
+        "xpath": "html/body/div/div/section/div[2]/main/div/div/div/span"
+      },
+      "attributes": {},
+      "tag_name": "span",
+      "text": "首页",
+      "is_visible": true,
+      "is_clickable": true
+    },
+    "19": {
+      "locators": {
+        "xpath": "html/body/div/div/section/div[2]/main/div/div/div/div/div/span",
+        "css": "span.anticon.anticon-caret-left"
+      },
+      "attributes": {
+        "role": "img",
+        "aria-label": "caret-left",
+        "_nk": "rv7v51",
+        "tabindex": "-1",
+        "class": "anticon anticon-caret-left",
+        "style": "display: inline-block; cursor: pointer;"
+      },
+      "tag_name": "span",
+      "text": "",
+      "is_visible": true,
+      "is_clickable": true
+    },
+    "20": {
+      "locators": {
+        "xpath": "html/body/div/div/section/div[2]/main/div/div/div/div/div[2]/span",
+        "css": "span.anticon.anticon-caret-right"
+      },
+      "attributes": {
+        "role": "img",
+        "aria-label": "caret-right",
+        "_nk": "rv7v61",
+        "tabindex": "-1",
+        "class": "anticon anticon-caret-right",
+        "style": "display: inline-block; cursor: pointer;"
+      },
+      "tag_name": "span",
+      "text": "",
+      "is_visible": true,
+      "is_clickable": true
+    },
+    "21": {
+      "locators": {
+        "xpath": "html/body/div/div/section/div[2]/main/div/div[2]/div/div/div/div/div/div/div[2]/div/div/div"
+      },
+      "attributes": {},
+      "tag_name": "div",
+      "text": "22",
+      "is_visible": true,
+      "is_clickable": true
+    },
+    "22": {
+      "locators": {
+        "xpath": "html/body/div/div/section/div[2]/main/div/div[2]/div/div/div/div/div/div/div[2]/div/div/div[2]"
+      },
+      "attributes": {},
+      "tag_name": "div",
+      "text": "11",
+      "is_visible": true,
+      "is_clickable": true
+    },
+    "23": {
+      "locators": {
+        "xpath": "html/body/div/div/section/div[2]/main/div/div[2]/div/div/div/div/div/div/div[2]/div/div/div[3]"
+      },
+      "attributes": {},
+      "tag_name": "div",
+      "text": "33",
+      "is_visible": true,
+      "is_clickable": true
+    },
+    "24": {
+      "locators": {
+        "xpath": "html/body/div/div/section/div[2]/main/div/div[2]/div/div/div/div/div[2]/div/div/div/div[2]/a"
+      },
+      "attributes": {
+        "href": "#",
+        "_nk": "K/Qcj1"
+      },
+      "tag_name": "a",
+      "text": "编辑",
+      "is_visible": true,
+      "is_clickable": true
+    },
+    "25": {
+      "locators": {
+        "xpath": "html/body/div/div/section/div[2]/main/div/div[2]/div/div/div/div/div[2]/div/div[2]/div/div"
+      },
+      "attributes": {},
+      "tag_name": "div",
+      "text": "企业管理",
+      "is_visible": true,
+      "is_clickable": true
+    },
+    "26": {
+      "locators": {
+        "xpath": "html/body/div/div/section/div[2]/main/div/div[2]/div/div/div/div/div[2]/div/div[2]/div/div[2]"
+      },
+      "attributes": {},
+      "tag_name": "div",
+      "text": "新增客户",
+      "is_visible": true,
+      "is_clickable": true
+    },
+    "27": {
+      "locators": {
+        "xpath": "html/body/div/div/section/div[2]/main/div/div[2]/div/div/div/div/div[2]/div/div[2]/div/div[3]"
+      },
+      "attributes": {},
+      "tag_name": "div",
+      "text": "合作客户",
+      "is_visible": true,
+      "is_clickable": true
+    },
+    "28": {
+      "locators": {
+        "xpath": "html/body/div/div/section/div[2]/main/div/div[2]/div/div/div/div/div[2]/div/div[2]/div/div[4]"
+      },
+      "attributes": {},
+      "tag_name": "div",
+      "text": "合同管理",
+      "is_visible": true,
+      "is_clickable": true
+    },
+    "29": {
+      "locators": {
+        "xpath": "html/body/div/div/section/div[2]/main/div/div[2]/div/div/div/div/div[2]/div/div[2]/div/div[5]"
+      },
+      "attributes": {},
+      "tag_name": "div",
+      "text": "补充协议管理",
+      "is_visible": true,
+      "is_clickable": true
+    },
+    "30": {
+      "locators": {
+        "xpath": "html/body/div/div/section/div[2]/main/div/div[2]/div/div/div/div/div[2]/div/div[2]/div/div[6]"
+      },
+      "attributes": {},
+      "tag_name": "div",
+      "text": "协议字段管理",
+      "is_visible": true,
+      "is_clickable": true
+    },
+    "31": {
+      "locators": {
+        "xpath": "html/body/div/div/section/div[2]/main/div/div[2]/div/div/div/div/div[2]/div/div[2]/div/div[7]"
+      },
+      "attributes": {},
+      "tag_name": "div",
+      "text": "协议模板管理",
+      "is_visible": true,
+      "is_clickable": true
+    },
+    "32": {
+      "locators": {
+        "xpath": "html/body/div/div/section/div[2]/main/div/div[2]/div/div/div/div/div[2]/div/div[2]/div/div[8]"
+      },
+      "attributes": {},
+      "tag_name": "div",
+      "text": "项目管理",
+      "is_visible": true,
+      "is_clickable": true
+    },
+    "33": {
+      "locators": {
+        "xpath": "html/body/div/div/section/div[2]/main/div/div[2]/div/div/div/div[2]/div/div/div/div/div[2]/a"
+      },
+      "attributes": {
+        "href": "#",
+        "_nk": "K/Qcj2"
+      },
+      "tag_name": "a",
+      "text": "更多",
+      "is_visible": true,
+      "is_clickable": true
+    },
+    "35": {
+      "locators": {
+        "xpath": "html/body/div/div/section/div[2]/main/div/div[2]/div/div/div/div[2]/div/div/div[2]/div/div/div/div/ul/li/div/div/h4/a"
+      },
+      "attributes": {
+        "href": "javascript:;",
+        "_nk": "K/Qcj3"
+      },
+      "tag_name": "a",
+      "text": "客户同步中台:张小泉股份有限公司同步中台失败,请及时关注",
+      "is_visible": true,
+      "is_clickable": true
+    },
+    "34": {
+      "locators": {
+        "xpath": "html/body/div/div/section/div[2]/main/div/div[2]/div/div/div/div[2]/div/div/div[2]/div/div/div/div/ul/li"
+      },
+      "attributes": {},
+      "tag_name": "li",
+      "text": "04-08",
+      "is_visible": true,
+      "is_clickable": true
+    },
+    "37": {
+      "locators": {
+        "xpath": "html/body/div/div/section/div[2]/main/div/div[2]/div/div/div/div[2]/div/div/div[2]/div/div/div/div/ul/li[2]/div/div/h4/a"
+      },
+      "attributes": {
+        "href": "javascript:;",
+        "_nk": "K/Qcj3"
+      },
+      "tag_name": "a",
+      "text": "客户同步中台:客户名称123123同步中台失败,请及时关注",
+      "is_visible": true,
+      "is_clickable": true
+    },
+    "36": {
+      "locators": {
+        "xpath": "html/body/div/div/section/div[2]/main/div/div[2]/div/div/div/div[2]/div/div/div[2]/div/div/div/div/ul/li[2]"
+      },
+      "attributes": {},
+      "tag_name": "li",
+      "text": "04-07",
+      "is_visible": true,
+      "is_clickable": true
+    },
+    "38": {
+      "locators": {
+        "xpath": "html/body/div/div/section/div[2]/div/a"
+      },
+      "attributes": {
+        "href": "https://www.beian.gov.cn/portal/registerSystemInfo?recordcode=35010402350855",
+        "_nk": "Klqc31"
+      },
+      "tag_name": "a",
+      "text": "闽ICP备19022614号-3 闽公安备 35010402350855号",
+      "is_visible": true,
+      "is_clickable": true
+    }
+  }
+}

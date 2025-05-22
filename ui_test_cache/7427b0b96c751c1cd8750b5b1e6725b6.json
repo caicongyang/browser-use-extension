@@ -1,0 +1,122 @@
+{
+  "metadata": {
+    "url": "https://hy-sit.1233s2b.com/user/login",
+    "timestamp": 1747827855.282319,
+    "element_count": 8
+  },
+  "elements": {
+    "1": {
+      "locators": {
+        "xpath": "html/body/div[3]/div/div[2]/div/div[2]/button",
+        "css": "button.ant-modal-close"
+      },
+      "attributes": {
+        "type": "button",
+        "aria-label": "Close",
+        "class": "ant-modal-close"
+      },
+      "tag_name": "button",
+      "text": "",
+      "is_visible": true,
+      "is_clickable": true
+    },
+    "2": {
+      "locators": {
+        "xpath": "html/body/div[3]/div/div[2]/div/div[2]/div[2]/div/form/div/button",
+        "css": "button.ant-btn.ant-btn-primary.ant-btn-block"
+      },
+      "attributes": {
+        "_nk": "Q4ZE31",
+        "type": "button",
+        "class": "ant-btn ant-btn-primary ant-btn-block"
+      },
+      "tag_name": "button",
+      "text": "新增商家",
+      "is_visible": true,
+      "is_clickable": true
+    },
+    "3": {
+      "locators": {
+        "xpath": "html/body/div[3]/div/div[2]/div/div[2]/div[2]/div/form/div[2]/button",
+        "css": "button.ant-btn.ant-btn-default.ant-btn-block"
+      },
+      "attributes": {
+        "_nk": "Q4ZE32",
+        "type": "button",
+        "class": "ant-btn ant-btn-default ant-btn-block"
+      },
+      "tag_name": "button",
+      "text": "辽阳市兴宇纸业有限公司-管理端",
+      "is_visible": true,
+      "is_clickable": true
+    },
+    "4": {
+      "locators": {
+        "xpath": "html/body/div[3]/div/div[2]/div/div[2]/div[2]/div/form/div[3]/button",
+        "css": "button.ant-btn.ant-btn-default.ant-btn-block"
+      },
+      "attributes": {
+        "_nk": "Q4ZE32",
+        "type": "button",
+        "class": "ant-btn ant-btn-default ant-btn-block"
+      },
+      "tag_name": "button",
+      "text": "菜单改造测试-管理端",
+      "is_visible": true,
+      "is_clickable": true
+    },
+    "5": {
+      "locators": {
+        "xpath": "html/body/div[3]/div/div[2]/div/div[2]/div[2]/div/form/div[4]/button",
+        "css": "button.ant-btn.ant-btn-default.ant-btn-block"
+      },
+      "attributes": {
+        "_nk": "Q4ZE32",
+        "type": "button",
+        "class": "ant-btn ant-btn-default ant-btn-block"
+      },
+      "tag_name": "button",
+      "text": "一言的企业R-客户端",
+      "is_visible": true,
+      "is_clickable": true
+    },
+    "7": {
+      "locators": {
+        "xpath": "html/body/div[3]/div/div[2]/div/div[2]/div[3]/div/div/div/button",
+        "css": "button.ant-btn.ant-btn-default"
+      },
+      "attributes": {
+        "type": "button",
+        "class": "ant-btn ant-btn-default"
+      },
+      "tag_name": "button",
+      "text": "取 消",
+      "is_visible": true,
+      "is_clickable": true
+    },
+    "6": {
+      "locators": {
+        "xpath": "html/body/div[3]/div/div[2]/div/div[2]/div[3]/div"
+      },
+      "attributes": {},
+      "tag_name": "div",
+      "text": "",
+      "is_visible": true,
+      "is_clickable": true
+    },
+    "0": {
+      "locators": {
+        "xpath": "html/body/div[3]/div/div[2]",
+        "css": "div.ant-modal-wrap"
+      },
+      "attributes": {
+        "tabindex": "-1",
+        "class": "ant-modal-wrap"
+      },
+      "tag_name": "div",
+      "text": "选择平台和企业",
+      "is_visible": true,
+      "is_clickable": true
+    }
+  }
+}

@@ -1,245 +1,202 @@
 """
 UI Actions Registry System - UI动作注册系统
 
-这个模块提供了一个基于装饰器的系统，用于注册增强型UI动作。
+这个模块提供了一个基于Registry的系统，用于注册增强型UI动作。
 这些动作可以被LLM代理（AI模型）用来更有效地与Web界面进行交互。
 
 主要功能：
-1. 提供动作注册装饰器
-2. 管理UI动作的全局注册表
-3. 支持动作的异步执行
-4. 提供错误处理和日志记录
+1. 扩展了核心Registry类
+2. 提供注册增强型UI动作的方法
+3. 支持与Controller系统的集成
 """
 import logging
-import asyncio
-import functools
-import inspect
-from typing import Callable, Dict, Any, List, Optional, Tuple, Union
+from typing import Dict, Any, List, Optional, Type, TypeVar, Generic, Callable
+
+from browser_use.controller.registry.service import Registry
+from browser_use.agent.views import ActionResult
+from pydantic import BaseModel
+from browser_use.controller.views import (
+    GoToUrlAction,
+    ClickElementAction,
+    InputTextAction,
+    ScrollAction,
+    SendKeysAction,
+    NoParamsAction,
+)
 
 logger = logging.getLogger(__name__)
 
-# 全局注册表，用于存储所有已注册的增强型UI动作
-# 键：动作名称
-# 值：对应的处理函数
-_ENHANCED_UI_ACTIONS: Dict[str, Callable] = {}
+Context = TypeVar('Context')
 
-def enhanced_ui_action(name: str, description: str):
+class EnhancedUIRegistry(Generic[Context], Registry[Context]):
     """
-    用于注册增强型UI动作的装饰器
-    
-    参数:
-        name: 动作的唯一标识名称
-        description: 动作的描述信息，用于帮助LLM理解该动作的功能和用途
-    
-    返回:
-        装饰器函数
-    
-    使用示例:
-        @enhanced_ui_action(
-            name="click_button",
-            description="点击指定的按钮元素"
-        )
-        async def click_button(element_id: str):
-            # 实现点击逻辑
-            pass
+    扩展核心Registry类，提供增强的UI操作注册功能
     """
-    def decorator(func):
-        @functools.wraps(func)
-        async def wrapper(*args, **kwargs):
-            logger.info(f"正在执行增强型UI动作: {name}")
-            try:
-                return await func(*args, **kwargs)
-            except Exception as e:
-                logger.error(f"执行增强型UI动作 '{name}' 时发生错误: {str(e)}")
-                return {"success": False, "error": str(e)}
-                
-        # 为函数添加元数据，便于后续查询和管理
-        wrapper.action_name = name
-        wrapper.description = description
-        wrapper.signature = inspect.signature(func)
+    
+    def __init__(self, exclude_actions: list[str] | None = None):
+        """
+        初始化增强UI注册表
         
-        # 将动作注册到全局注册表
-        _ENHANCED_UI_ACTIONS[name] = wrapper
-        logger.debug(f"成功注册增强型UI动作: {name}")
-        return wrapper
-    
-    return decorator
-
-def register_enhanced_ui_actions(browser_controller):
-    """
-    注册所有基础的增强型UI动作到浏览器控制器
-    
-    参数:
-        browser_controller: 浏览器控制器实例，用于执行具体的浏览器操作
-    
-    返回:
-        已注册动作名称的列表
-    """
-    # 注册基础增强动作
-    
-    @enhanced_ui_action(
-        name="resilient_click",
-        description="智能点击功能，会尝试多种策略来点击元素，"
-                   "包括等待元素可见和可点击、滚动到元素位置、"
-                   "使用不同的定位策略等。"
-    )
-    async def resilient_click(element_description: str, timeout: int = 10):
-        """智能点击的具体实现"""
-        logger.info(f"尝试智能点击元素: {element_description}")
-        try:
-            # 模拟成功的点击操作
-            await asyncio.sleep(1)  # 模拟等待元素
-            return {
-                "success": True,
-                "message": f"成功使用智能策略点击元素 '{element_description}'",
-                "element_found": True,
-                "attempts": 1
-            }
-        except Exception as e:
-            return {
-                "success": False,
-                "error": str(e),
-                "message": f"点击元素 '{element_description}' 失败",
-                "element_found": False
-            }
-    
-    @enhanced_ui_action(
-        name="element_diagnostic",
-        description="执行详细的Web元素诊断，检查元素的可见性、"
-                   "可点击性、属性等，并提供全面的信息以帮助"
-                   "理解交互失败的原因。"
-    )
-    async def element_diagnostic(element_description: str):
-        """元素诊断的具体实现"""
-        logger.info(f"正在对元素进行诊断: {element_description}")
-        # 模拟诊断过程
-        await asyncio.sleep(1.5)
+        参数:
+            exclude_actions: 要排除的动作列表
+        """
+        # 确保exclude_actions始终是列表而不是None
+        super().__init__(exclude_actions if exclude_actions is not None else [])
+        logger.info("增强UI注册表初始化完成")
         
-        return {
-            "success": True,
-            "element_found": True,
-            "is_visible": True,
-            "is_clickable": True,
-            "accessibility_info": {
-                "role": "button",
-                "name": element_description,
-                "state": "enabled"
-            },
-            "computed_styles": {
-                "position": "absolute",
-                "z-index": "1",
-                "visibility": "visible",
-                "display": "block"
-            },
-            "recommendations": [
-                "元素看起来是可交互的且可访问",
-                "建议使用标准点击操作"
-            ]
-        }
-    
-    @enhanced_ui_action(
-        name="page_action",
-        description="执行页面级别的操作，如滚动、等待、刷新、"
-                   "截图等不依赖于特定元素的操作。"
-    )
-    async def page_action(action_type: str, params: Optional[Dict[str, Any]] = None):
-        """页面动作的具体实现"""
-        params = params or {}
-        logger.info(f"执行页面动作: {action_type}，参数: {params}")
+    def register_enhanced_ui_action(self, name: str, description: str, param_model: Optional[Type[BaseModel]] = None):
+        """
+        注册增强型UI动作的装饰器
         
-        supported_actions = {
-            "scroll_to_bottom": "已滚动到页面底部",
-            "scroll_to_top": "已滚动到页面顶部",
-            "wait": f"已等待 {params.get('seconds', 1)} 秒",
-            "refresh": "已刷新页面",
-            "take_screenshot": "已完成截图"
-        }
-        
-        if action_type not in supported_actions:
-            return {
-                "success": False,
-                "error": f"不支持的页面动作: {action_type}",
-                "supported_actions": list(supported_actions.keys())
-            }
-        
-        # 模拟动作执行
-        await asyncio.sleep(0.5)
-        
-        return {
-            "success": True,
-            "action_type": action_type,
-            "message": supported_actions[action_type],
-            "params_used": params
-        }
-    
-    # 为需要browser_controller的函数添加browser_controller参数
-    for name, func in list(_ENHANCED_UI_ACTIONS.items()):
-        sig = inspect.signature(func)
-        if "browser_controller" in sig.parameters:
-            # 创建一个新的函数，将browser_controller绑定到函数中
-            @functools.wraps(func)
-            async def wrapper(*args, **kwargs):
-                return await func(browser_controller=browser_controller, *args, **kwargs)
+        参数:
+            name: 动作的唯一标识名称
+            description: 动作的描述信息
+            param_model: 参数模型类
             
-            # 复制原函数的元数据
-            wrapper.action_name = func.action_name
-            wrapper.description = func.description
-            wrapper.signature = sig
+        返回:
+            装饰器函数
+        
+        示例:
+            @registry.register_enhanced_ui_action(
+                name="resilient_click",
+                description="智能点击功能"
+            )
+            async def resilient_click(element_description: str, timeout: int = 10, browser=None):
+                # 实现点击逻辑
+                pass
+        """
+        # 修改为直接装饰函数
+        def decorator(func: Callable):
+            # 保存原始函数名
+            original_name = func.__name__
             
-            # 用新函数替换注册表中的原函数
-            _ENHANCED_UI_ACTIONS[name] = wrapper
-    
-    logger.info(f"共注册了 {len(_ENHANCED_UI_ACTIONS)} 个增强型UI动作")
-    return list(_ENHANCED_UI_ACTIONS.keys())
+            # 修改函数名为指定的名称
+            func.__name__ = name
+            
+            # 使用核心Registry的action装饰器（不带name参数）
+            result = self.action(description, param_model=param_model)(func)
+            
+            # 恢复原始函数名，避免影响后续使用
+            func.__name__ = original_name
+            
+            return result
+            
+        return decorator
+        
+    def register_basic_enhanced_actions(self, browser_controller=None):
+        """
+        注册基本的增强型UI动作
+        
+        参数:
+            browser_controller: 浏览器控制器实例（可选）
+        
+        注意:
+            此方法已被清空，不再预定义任何操作。
+            您可以在此添加自己的自定义操作。
+        """
+        logger.info("基本增强UI动作注册（当前无预定义操作）")
+        return list(self.registry.actions.keys())
+        
+    def get_available_actions(self) -> List[Dict[str, str]]:
+        """
+        获取所有可用的增强型UI动作的信息
+        
+        返回:
+            包含动作信息的字典列表
+        """
+        return [
+            {
+                "name": name,
+                "description": action.description,
+                "parameters": str(action.param_model)
+            }
+            for name, action in self.registry.actions.items()
+        ]
+        
+    def register_standard_actions(self):
+        """注册标准的浏览器操作"""
+        logger.info("注册标准浏览器操作")
+        
+        @self.action("导航到指定URL", GoToUrlAction)
+        async def go_to_url(url: str, browser=None):
+            """导航到指定URL"""
+            if browser:
+                page = await browser.get_current_page()
+                await page.goto(url)
+                return ActionResult(
+                    success=True,
+                    extracted_content=f"已导航到 {url}",
+                    metadata={"url": url}
+                )
+            return ActionResult(success=False, error_message="未提供浏览器实例")
+            
+        @self.action("点击元素", ClickElementAction)
+        async def click_element(index: int, browser=None):
+            """点击元素"""
+            if browser:
+                page = await browser.get_current_page()
+                dom_state = await browser.get_state()
+                element = dom_state.selector_map.get(index)
+                if element and hasattr(element, 'selector'):
+                    await page.click(element.selector)
+                    return ActionResult(
+                        success=True,
+                        extracted_content=f"已点击元素 {index}",
+                        metadata={"element_index": index}
+                    )
+                return ActionResult(success=False, error_message=f"未找到元素 {index}")
+            return ActionResult(success=False, error_message="未提供浏览器实例")
+            
+        @self.action("通过CSS选择器点击元素", param_model=None)
+        async def click_by_selector(selector: str, browser=None):
+            """通过CSS选择器点击元素"""
+            if browser:
+                page = await browser.get_current_page()
+                try:
+                    await page.click(selector)
+                    return ActionResult(
+                        success=True,
+                        extracted_content=f"已通过选择器 {selector} 点击元素",
+                        metadata={"selector": selector}
+                    )
+                except Exception as e:
+                    return ActionResult(success=False, error_message=f"点击失败: {str(e)}")
+            return ActionResult(success=False, error_message="未提供浏览器实例")
+            
+        @self.action("输入文本", InputTextAction)
+        async def input_text(index: int, text: str, browser=None):
+            """输入文本"""
+            if browser:
+                page = await browser.get_current_page()
+                dom_state = await browser.get_state()
+                element = dom_state.selector_map.get(index)
+                if element and hasattr(element, 'selector'):
+                    await page.fill(element.selector, text)
+                    return ActionResult(
+                        success=True,
+                        extracted_content=f"已输入文本: {text}",
+                        metadata={"element_index": index, "text": text}
+                    )
+                return ActionResult(success=False, error_message=f"未找到元素 {index}")
+            return ActionResult(success=False, error_message="未提供浏览器实例")
+            
+        return ["go_to_url", "click_element", "click_by_selector", "input_text"]
 
-def get_available_actions() -> List[Dict[str, str]]:
+# 创建增强型UI注册表的工厂函数
+def create_enhanced_ui_registry(exclude_actions: list[str] | None = None) -> EnhancedUIRegistry:
     """
-    获取所有可用的增强型UI动作的信息
-    
-    返回:
-        包含动作信息的字典列表，每个字典包含：
-        - name: 动作名称
-        - description: 动作描述
-        - parameters: 参数签名
-    """
-    return [
-        {
-            "name": func.action_name,
-            "description": func.description,
-            "parameters": str(func.signature)
-        }
-        for func in _ENHANCED_UI_ACTIONS.values()
-    ]
-
-async def execute_ui_action(action_name: str, **kwargs) -> Dict[str, Any]:
-    """
-    通过名称执行已注册的UI动作
+    创建并返回一个增强型UI注册表实例
     
     参数:
-        action_name: 要执行的动作名称
-        **kwargs: 传递给动作的参数
-    
+        exclude_actions: 要排除的动作列表
+        
     返回:
-        动作执行的结果，包含：
-        - success: 是否成功
-        - error: 如果失败，错误信息
-        - 其他动作特定的返回值
+        配置好的EnhancedUIRegistry实例
     """
-    if action_name not in _ENHANCED_UI_ACTIONS:
-        available_actions = list(_ENHANCED_UI_ACTIONS.keys())
-        return {
-            "success": False,
-            "error": f"未知的UI动作: {action_name}",
-            "available_actions": available_actions
-        }
+    # 确保exclude_actions始终是列表而不是None
+    registry = EnhancedUIRegistry(exclude_actions if exclude_actions is not None else [])
     
-    action = _ENHANCED_UI_ACTIONS[action_name]
-    try:
-        return await action(**kwargs)
-    except Exception as e:
-        logger.exception(f"执行UI动作 '{action_name}' 时发生异常")
-        return {
-            "success": False,
-            "error": str(e),
-            "action": action_name
-        } 
+    # 注册标准浏览器操作
+    registry.register_standard_actions()
+    
+    return registry 
